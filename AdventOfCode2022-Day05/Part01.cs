@@ -10,95 +10,113 @@ namespace AdventOfCode2022_Day05
 {
     internal class Part01
     {
-        List<string> Crates = new List<string>();
-        List<char> Stacks = new List<char>();
-        List<string> WhatToDo = new List<string>();
-        List<char> WhatToDoChar = new List<char>();
-        List<char> copia = new List<char>();
+
 
         public void Solve01()
         {
-            string Way = @"C:\Dev\AdventOfCode2022_Day01\AdventOfCode2022-Day05\Example-Day05.txt";
+            string Way = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\Example-Day05.txt";
             string[] Read = File.ReadAllLines(Way);
+            List<string> crafts = new List<string>();
+            List<string> moves = new List<string>();
 
-            for (int Position = 0; Position < 3; Position++)
+            bool newList = false;
+            for (int i = 0; i < Read.Length; i++)
             {
-                Crates.Add(Read[Position]);
-            }
-            for (int Position = 3; Position < 4; Position++)
-            {
-                string teste = Read[Position];
-
-                for (int Positionteste = 0; Positionteste < teste.Length; Positionteste++)
+                if (Read[i] == "")
                 {
-                    Stacks.Add(teste[Positionteste]);
-                }
-            }
-            for (int Position = 5; Position < Read.Length; Position++)
-            {
-                WhatToDo.Add(Read[Position]);
-            }
-
-            //Escreve movimentos em uma List de Char;
-            for (int Positionwhattodo = 0; Positionwhattodo < WhatToDo.Count; Positionwhattodo++)
-            {
-                string Do = WhatToDo[Positionwhattodo];
-
-                for (int Position = 0; Position < Do.Length; Position++)
-                {
-                    WhatToDoChar.Add(Do[Position]);
+                    newList = true;
                 }
 
+                if (newList == false)
+                {
+                    crafts.Add(Read[i]);
+                }
+                else
+                {
+                    moves.Add(Read[i]);
+                }
             }
 
-            for (int PositionCrates = 0; PositionCrates < (WhatToDoChar[5]); PositionCrates++)
-            {
-                string LineActualCrates = Crates[PositionCrates];
-                List<char> CratesChar = new List<char>();
 
-                //Salva os Crates em uma variavel char;
-                for (int Positionchar = 0; Positionchar < LineActualCrates.Length; Positionchar++)
+
+            for (int i = 1; i < moves.Count; i++)
+            {
+                string line = moves[i];
+
+                int move = Convert.ToInt32(Convert.ToString(line[5]));
+                int from = Convert.ToInt32(Convert.ToString(line[12]));
+
+
+                //Para copiar apenas as linhas que serao alteradas.
+                List<string> temp = new List<string>();
+                while (move > 0)
                 {
-                    CratesChar.Add(LineActualCrates[Positionchar]);
+                    temp.Add(crafts[move - 1]);
+                    move--;
                 }
 
-                //Identifica de onde a pilha e removida(posicao na char), cria uma variavel(copia) com as informacoes da remocao e apaga os mesmos dados da variavel CraterChar.
-                for (int PositionStacks = 0; PositionStacks < Stacks.Count; PositionStacks++)
+                //Para saber a posicao char para reescrever o caixote.
+                int to = Convert.ToInt32(Convert.ToString(line[17]));
+                if (to == 1)
                 {
-                    if (Stacks[PositionStacks] != ' ')
+                    to = 0;
+                }
+                else
+                {
+                    if (to == 2)
                     {
-                        char From = Stacks[PositionStacks];
-
-                        if (WhatToDoChar[12] == From)
-                        {
-                            for (int PositionFrom = PositionStacks; PositionFrom < 8; PositionFrom++)
-                            {
-                                copia.Add(CratesChar[PositionFrom - 1]);
-                                CratesChar[PositionFrom - 1] = ' ';
-                            }
-                            PositionStacks = Stacks.Count;
-                        }
-                    }
-                }
-
-                //Escreve novamente os dados na pilha nova.
-                for (int Positioncopia = 0; Positioncopia < copia.Count; Positioncopia++)
-                {
-                    if (WhatToDoChar[WhatToDoChar.Count - 1] == '1')
-                    {
-                        CratesChar[Positioncopia] = copia[Positioncopia];
+                        to = 4;
                     }
                     else
                     {
-                        CratesChar[Positioncopia + 4] = copia[Positioncopia];
+                        to = 8;
                     }
                 }
 
-                string algo = new string(CratesChar.ToArray());
-                Crates[PositionCrates] = algo;
 
-                PositionCrates = 0;
+                for (int itemp = temp.Count - 1; itemp >= 0; itemp--)
+                {
+                    List<char> characters = new List<char>();
+
+                    foreach (char c in temp[itemp])
+                    {
+                        if (c != ' ')
+                        {
+                            characters.Add(c);
+                        }
+                    }
+                    temp[itemp] = "";
+
+                    string n = "";
+                    for(int ii= 0; ii < 11; ii++)
+                    {
+                        if(ii != to)
+                        {
+                            n = n + " ";
+                            
+                        }
+                        else
+                        {
+                            foreach(char c in characters)
+                            {
+                                n = n + c;
+                            }
+                            break;
+                        }
+                    }
+                    temp[itemp] = n;
+                }
+                for (int iCrafts = 0; iCrafts < temp.Count; iCrafts++)
+                {
+                    crafts[iCrafts] = temp[iCrafts];
+                }
+
+
+
+
+
             }
+
         }
 
 
