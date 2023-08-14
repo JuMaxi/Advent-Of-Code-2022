@@ -4,121 +4,130 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AdventOfCode2022_Day05
 {
-    internal class Part01
+    public class Stack
     {
+        private List<char> _list = new List<char>();
 
-
-        public void Solve01()
+        public bool IsEmpty()
         {
-            string Way = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\Example-Day05.txt";
-            string[] Read = File.ReadAllLines(Way);
-            List<string> crafts = new List<string>();
-            List<string> moves = new List<string>();
-
-            bool newList = false;
-            for (int i = 0; i < Read.Length; i++)
-            {
-                if (Read[i] == "")
-                {
-                    newList = true;
-                }
-
-                if (newList == false)
-                {
-                    crafts.Add(Read[i]);
-                }
-                else
-                {
-                    moves.Add(Read[i]);
-                }
-            }
-
-
-
-            for (int i = 1; i < moves.Count; i++)
-            {
-                string line = moves[i];
-
-                int move = Convert.ToInt32(Convert.ToString(line[5]));
-                int from = Convert.ToInt32(Convert.ToString(line[12]));
-
-
-                //Para copiar apenas as linhas que serao alteradas.
-                List<string> temp = new List<string>();
-                while (move > 0)
-                {
-                    temp.Add(crafts[move - 1]);
-                    move--;
-                }
-
-                //Para saber a posicao char para reescrever o caixote.
-                int to = Convert.ToInt32(Convert.ToString(line[17]));
-                if (to == 1)
-                {
-                    to = 0;
-                }
-                else
-                {
-                    if (to == 2)
-                    {
-                        to = 4;
-                    }
-                    else
-                    {
-                        to = 8;
-                    }
-                }
-
-
-                for (int itemp = temp.Count - 1; itemp >= 0; itemp--)
-                {
-                    List<char> characters = new List<char>();
-
-                    foreach (char c in temp[itemp])
-                    {
-                        if (c != ' ')
-                        {
-                            characters.Add(c);
-                        }
-                    }
-                    temp[itemp] = "";
-
-                    string n = "";
-                    for(int ii= 0; ii < 11; ii++)
-                    {
-                        if(ii != to)
-                        {
-                            n = n + " ";
-                            
-                        }
-                        else
-                        {
-                            foreach(char c in characters)
-                            {
-                                n = n + c;
-                            }
-                            break;
-                        }
-                    }
-                    temp[itemp] = n;
-                }
-                for (int iCrafts = 0; iCrafts < temp.Count; iCrafts++)
-                {
-                    crafts[iCrafts] = temp[iCrafts];
-                }
-
-
-
-
-
-            }
-
+            return _list.Count() == 0;
         }
 
+        public void Push(char item) //Push: Add an item on the top of the stack
+        {
+            _list.Add(item);
+        }
+
+        public char Pop() //Pop: Removes and returns an item from the top of the stack
+        {
+            char item = _list.Last();
+            _list.RemoveAt(_list.Count - 1);
+            return item;
+        }
+
+        public void WriteMessage()
+        {
+            Console.WriteLine(_list.Last());
+        }
+    }
+
+    internal class Part01
+    {
+        public void Solve01()
+        {
+            //Reading the file and saving it in an Array of string.
+            //string Way = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\Example-Day05.txt";
+            string Way2 = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\input-Day05.txt";
+
+            string[] Read = File.ReadAllLines(Way2);
+
+
+            //Save the crates in a List<string>
+            int i = 0;
+            List<string> cratesLines = new List<string>();
+            while (Read[i] != "")
+            {
+                cratesLines.Add(Read[i]);
+                i++;
+            }
+
+            //Save the moves in a List<string>
+            int ii = i + 1;
+            List<string> moves = new List<string>();
+            while (ii < Read.Length)
+            {
+                moves.AddRange(Read[ii].Split(" "));
+                ii++;
+            }
+
+            //Find the number of Stacks
+            string total = cratesLines[cratesLines.Count - 1];
+            int numberStacks = Convert.ToInt32(total[total.Length - 2].ToString());
+
+            //Creating the list of stacks.
+            var stacks = new List<Stack>();
+            for (int x = 0; x < numberStacks; x++)
+            {
+                stacks.Add(new Stack());
+            }
+
+            //Save the crates inside each list of Stack
+            for (int x = cratesLines.Count - 2; x >= 0; x--)
+            {
+                string line = cratesLines[x];
+                int stackNumber = 0;
+                for (int position = 1; position < line.Length; position = position + 4)
+                {
+                    if (line[position] != ' ')
+                    {
+                        stacks[stackNumber].Push(line[position]);
+                    }
+                    stackNumber++;
+                }
+            }
+
+            List<int> m = GetMovements(moves);
+
+            //Doing the moves in each Stack to return the list organized with the final message.
+            int index = 0;
+            while (index < m.Count)
+            {
+                (int quantity, int fromStack, int toStack) = (m[index], m[index + 1], m[index + 2]);
+
+                for (int amount = 0; amount < quantity; amount++)
+                {
+                    var item = stacks[fromStack - 1].Pop();
+                    stacks[toStack - 1].Push(item);
+                }
+
+                index = index + 3;
+            }
+
+            //Write the final message
+            foreach(Stack l in stacks)
+            {
+                l.WriteMessage();
+            }
+        }
+
+
+        //Take the moves of the file and convert to a list of int
+        private static List<int> GetMovements(List<string> moves)
+        {
+            List<int> m = new List<int>();
+
+            for(int i = 1; i < moves.Count; i = i + 2)
+            {
+                m.Add(Convert.ToInt32(moves[i]));
+            }
+
+            return m;
+        }
 
 
 
