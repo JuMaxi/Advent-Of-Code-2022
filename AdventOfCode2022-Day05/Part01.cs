@@ -36,7 +36,7 @@ namespace AdventOfCode2022_Day05
         }
     }
 
-    internal class Part01
+    public class Part01
     {
         int i = 0;
 
@@ -44,9 +44,9 @@ namespace AdventOfCode2022_Day05
         {
             //Reading the file and saving it in an Array of string.
             //string Way = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\Example-Day05.txt";
-            string Way2 = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\input-Day05.txt";
+            string Way = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\input-Day05.txt";
 
-            string[] Read = File.ReadAllLines(Way2);
+            string[] Read = File.ReadAllLines(Way);
 
             return Read;
         }
@@ -116,7 +116,7 @@ namespace AdventOfCode2022_Day05
             }
             return stacks;
         }
-        private static List<int> GetMovements(List<string> moves)
+        public List<int> GetMovements(List<string> moves)
         {
             //Take the moves of the file and convert to a list of int
             List<int> movesInt = new List<int>();
