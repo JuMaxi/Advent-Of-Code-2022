@@ -38,7 +38,9 @@ namespace AdventOfCode2022_Day05
 
     internal class Part01
     {
-        public void Solve01()
+        int i = 0;
+
+        public string[] ReadFile()
         {
             //Reading the file and saving it in an Array of string.
             //string Way = @"C:\Dev\Advent-Of-Code-2022\AdventOfCode2022-Day05\Example-Day05.txt";
@@ -46,9 +48,12 @@ namespace AdventOfCode2022_Day05
 
             string[] Read = File.ReadAllLines(Way2);
 
+            return Read;
+        }
 
+        public List<string> SaveCratesToList(string[] Read)
+        {
             //Save the crates in a List<string>
-            int i = 0;
             List<string> cratesLines = new List<string>();
             while (Read[i] != "")
             {
@@ -56,6 +61,10 @@ namespace AdventOfCode2022_Day05
                 i++;
             }
 
+            return cratesLines;
+        }
+        public List<string> SaveMovesToList(string[] Read)
+        {
             //Save the moves in a List<string>
             int ii = i + 1;
             List<string> moves = new List<string>();
@@ -65,17 +74,32 @@ namespace AdventOfCode2022_Day05
                 ii++;
             }
 
+            return moves;
+        }
+
+        public int FindNumberStacks(List<string> cratesLines)
+        {
             //Find the number of Stacks
             string total = cratesLines[cratesLines.Count - 1];
             int numberStacks = Convert.ToInt32(total[total.Length - 2].ToString());
 
-            //Creating the list of stacks.
+            return numberStacks;
+        }
+
+        public List<Stack> CreateListStacks(int numberStacks)
+        {
+            // Creating the list of stacks.
             var stacks = new List<Stack>();
             for (int x = 0; x < numberStacks; x++)
             {
                 stacks.Add(new Stack());
             }
 
+            return stacks;
+        }
+
+        public List<Stack> SaveCratesToEachStack(List<string> cratesLines, List<Stack> stacks)
+        {
             //Save the crates inside each list of Stack
             for (int x = cratesLines.Count - 2; x >= 0; x--)
             {
@@ -90,14 +114,28 @@ namespace AdventOfCode2022_Day05
                     stackNumber++;
                 }
             }
+            return stacks;
+        }
+        private static List<int> GetMovements(List<string> moves)
+        {
+            //Take the moves of the file and convert to a list of int
+            List<int> movesInt = new List<int>();
 
-            List<int> m = GetMovements(moves);
+            for (int i = 1; i < moves.Count; i = i + 2)
+            {
+                movesInt.Add(Convert.ToInt32(moves[i]));
+            }
 
+            return movesInt;
+        }
+
+        public List<Stack> OrganizeMoveStacks(List<Stack> stacks, List<int> movesInt)
+        {
             //Doing the moves in each Stack to return the list organized with the final message.
             int index = 0;
-            while (index < m.Count)
+            while (index < movesInt.Count)
             {
-                (int quantity, int fromStack, int toStack) = (m[index], m[index + 1], m[index + 2]);
+                (int quantity, int fromStack, int toStack) = (movesInt[index], movesInt[index + 1], movesInt[index + 2]);
 
                 for (int amount = 0; amount < quantity; amount++)
                 {
@@ -107,42 +145,39 @@ namespace AdventOfCode2022_Day05
 
                 index = index + 3;
             }
+            return stacks;
+        }
 
+        public void WriteFinalMessage(List<Stack> stacks)
+        {
             //Write the final message
-            foreach(Stack l in stacks)
+            foreach (Stack l in stacks)
             {
                 l.WriteMessage();
             }
         }
-
-
-        //Take the moves of the file and convert to a list of int
-        private static List<int> GetMovements(List<string> moves)
+        public void Solve01()
         {
-            List<int> m = new List<int>();
+            string[] File = ReadFile();
 
-            for(int i = 1; i < moves.Count; i = i + 2)
-            {
-                m.Add(Convert.ToInt32(moves[i]));
-            }
+            List<string> cratesLines = SaveCratesToList(File);
 
-            return m;
+            List<string> moves = SaveMovesToList(File);
+
+            int numberStacks = FindNumberStacks(cratesLines);
+
+            List<Stack> stacks = CreateListStacks(numberStacks);
+
+            stacks = SaveCratesToEachStack(cratesLines, stacks);
+            
+            List<int> movesInt = GetMovements(moves);
+
+            stacks = OrganizeMoveStacks(stacks, movesInt);
+
+            WriteFinalMessage(stacks);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
     }
 }
 
