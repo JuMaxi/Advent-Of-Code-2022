@@ -1,64 +1,81 @@
+using System.Collections.Generic;
+
 namespace AdventOfCode2022_Day07
 {
     public class SolutionDay07
     {
-        public int Part01(string[] input)
+        public class Directory
         {
-            int sum = 0;
-            int sumDir = 0;
-            int sumValueDir = 0;
-            bool changeDiretory = false;
+            public long Size { get; set; }
+            public string Name { get; set; }
 
-            for (int i = 1; i < input.Length; i++ )
+        }
+        public long Part01(string[] input)
+        {
+            List<Directory> alreadyCalculated = new();
+            List<Directory> actualPath = new();
+
+            foreach (string line in input)
             {
-                string line = input[i];
+                actualPath = CheckIfIsCd(line, actualPath);
+                actualPath = CheckIfIsFile(line, actualPath);
 
-                if (line.Contains("$ cd"))
+
+                if (line.EndsWith("..") || line == input[input.Length - 1])
                 {
-                    if (!line.Contains("$ cd .."))
-                    {
-                        sumDir++;
-                    }
-                    else
-                    {
-                        sumDir--;
-                    }
+                    actualPath[actualPath.Count - 2].Size += actualPath[actualPath.Count - 1].Size;
+
+                    alreadyCalculated.Add(actualPath[actualPath.Count - 1]);
+                    actualPath.RemoveAt(actualPath.Count - 1);
                 }
+            }
 
-                if (!line.StartsWith('$') && !line.StartsWith('d'))
+            long sum = ReturnSumCdLessOrEqual100_000(alreadyCalculated);
+
+            return sum;
+        }
+
+        public List<Directory> CheckIfIsCd(string line, List<Directory> actualPath)
+        {
+            Directory directory = new();
+
+            if (line.Contains("$ cd"))
+            {
+                if (!line.Contains(".."))
                 {
-                    string[] n = line.Split(' ');
-
-                    int number = Convert.ToInt32(n[0]);
-
-                    if (number <= 100000)
-                    {
-                        number = number * sumDir;
-                        sumValueDir += number;
-                    }
+                    directory.Name = line;
+                    actualPath.Add(directory);
                 }
+            }
+            return actualPath;
+        }
 
-                if (i < input.Length - 1)
+        public List<Directory> CheckIfIsFile(string line, List<Directory> actualPath)
+        {
+            Directory directory = new();
+
+            if (!line.StartsWith("$") && !line.StartsWith("d"))
+            {
+                int number = Convert.ToInt32(line.Split(" ")[0]);
+                directory.Size = number;
+                actualPath[actualPath.Count - 1].Size += directory.Size;
+            }
+            return actualPath;
+        }
+
+        public long ReturnSumCdLessOrEqual100_000(List<Directory> alreadyCalculated)
+        {
+            long sum = 0;
+            foreach(Directory cd in alreadyCalculated)
+            {
+                if(cd.Size <= 100_000)
                 {
-                    if (input[i + 1].Contains("$ cd"))
-                    {
-                        changeDiretory = true;
-                    }
-                }
-
-                if (changeDiretory)
-                {
-                    if (sumValueDir <= 100000)
-                    {
-                        sum += sumValueDir;
-                        sumValueDir = 0;
-                    }
-
-                    changeDiretory = false;
+                    sum += cd.Size;
                 }
             }
             return sum;
         }
+
     }
     public class Day07
     {
@@ -69,7 +86,7 @@ namespace AdventOfCode2022_Day07
             //string[] input = File.ReadAllLines("C:\\Dev\\Advent-Of-Code-2022\\AdventOfCode2022_Day07\\input-example.txt");
             string[] input = File.ReadAllLines("C:\\Dev\\Advent-Of-Code-2022\\AdventOfCode2022_Day07\\input-day07.txt");
 
-            int result = solution.Part01(input);
+            long result = solution.Part01(input);
 
             Assert.Equal(95437, result);
         }
